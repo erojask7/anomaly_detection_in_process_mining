@@ -1,0 +1,11 @@
+.idea/*
+.idea/
+.idea
+__pycache__/*
+__pycache__/
+__pycache__
+.DS_Store
+*-checkpoint.ipynb
+/research_questions/*
+/notebook.tex
+/notebooks/

@@ -7,7 +7,7 @@ from anomaly_detection.general.global_variables import *
 
 
 def create_input_representation_from_logs(logs_path, log_filenames, approach_name):
-    import anomaly_detection.pre_processamento.convertir_a_ohe as convertir_a_ohe
+    import anomaly_detection.pre_processing.convertir_a_ohe as convertir_a_ohe
     import os
 
     filenames = []

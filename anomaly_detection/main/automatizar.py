@@ -416,7 +416,7 @@ def execute_actions(phase_number, list_actions, bimp_log_filename, nome_grupo_ex
         ##3.1 Quantitative analysis
         if ("quantittv_analysis_by_approach_pr_rec" in list_actions or "quantittv_analysis_by_approach_ap" in list_actions):
 
-            from anomaly_detection.pos_processamento import p_q1_create_figures_from_results_files as figures_ad
+            from anomaly_detection.pos_processing import p_q1_create_figures_from_results_files as figures_ad
 
             if (experiments_group_path_ is not None):
                 if ("quantittv_analysis_by_approach_ap" in list_actions):
@@ -456,7 +456,7 @@ def execute_actions(phase_number, list_actions, bimp_log_filename, nome_grupo_ex
 
 
     if ("quantittv_analysis_all_approaches_in_one" in list_actions) & (phase_number == 2):
-        from anomaly_detection.pos_processamento import p_q1_create_figures_from_results_files as figures_ad
+        from anomaly_detection.pos_processing import p_q1_create_figures_from_results_files as figures_ad
         print("\n ========================== All Approaches in list ==========================")
 
         df_full_name = "full.csv"

@@ -1,5 +1,5 @@
 # Anomaly Detection In Process Mining
-This is the repository for "Anomaly detection in business process event logs: an comparative study between neural networks-based and count-based approaches"
+This is the repository for "Anomaly detection in business process event logs: a comparative study between neural networks-based and count-based approaches"
 ## Folder estructures
 ```
 ├── anomaly_detection 
@@ -15,7 +15,7 @@ This is the repository for "Anomaly detection in business process event logs: an
 ```
 
 The main folders are:
-- **anomaly_detection** folder containg all code
+- **anomaly_detection** folder containing all code
 - **research_questions**. At the beginning, this folder only contains logs. After execution, this folder will contain results of each phase of research
 
 
@@ -35,7 +35,7 @@ The main folders are:
 
 ### Phases
 We have three main phases in the research:
-1. Look for the best parameterizations
+1. Look for the best parameterization
 2. Analyze robustness of approaches
 3. Analyze approaches to process discovery improvement
  
@@ -44,6 +44,9 @@ The automatizar.py file contains the main code.
 In order to execute phase 02 we can execute the following code in automatizar.py:
 
 `main(phase_number=2)`
+
+main() function was set using nome_grupo_experimentos = "test_case". In order to get the same 
+results as in dissertation, nome_grupo_experimentos = "relatorio1-question2" should be used.
 
 ## Notebooks related to phase 02
 ### Notebook01: 

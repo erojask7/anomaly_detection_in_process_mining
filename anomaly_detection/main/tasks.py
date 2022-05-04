@@ -1,8 +1,5 @@
 #FIX2022forpubrep: ready for publication
 import pandas as pd
-import sys
-
-sys.path.insert(1, "E:\\EXPERIMENTOS2020\\anomaly_detection_artigo\\")
 from anomaly_detection.general.global_variables import *
 
 

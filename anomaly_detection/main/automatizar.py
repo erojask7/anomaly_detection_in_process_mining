@@ -1,9 +1,4 @@
 # %matplotlib inline #FIX2022forpubrep: ready for publication
-import sys
-from pathlib import Path
-
-ROOT_DIR = Path("E:\\EXPERIMENTOS2020\\anomaly_detection\\")
-sys.path.insert(1, str(ROOT_DIR))
 from anomaly_detection.general.utils_da import get_abreviation_of
 from anomaly_detection.main.tasks import *
 from anomaly_detection.main.get_experiment_parameterization import *
@@ -336,6 +331,8 @@ def execute_actions(phase_number, list_actions, bimp_log_filename, nome_grupo_ex
 
     import glob
     import os
+    import time
+    time_tst_start = time.time()
 
     # set dirs:
     main_path = ROOT_DIR
@@ -371,21 +368,21 @@ def execute_actions(phase_number, list_actions, bimp_log_filename, nome_grupo_ex
         if ("create_input_representations" in list_actions):
             input_rep_filenames = create_input_representation_from_logs(logs_path, original_logs_filenames,
                                                                         approach_name)
+        if "input_rep_filenames" in globals():
+            if (("create_input_representations" not in list_actions) | (
+                    len(input_rep_filenames) < 1)):  # We assume, files are in hard disk
+                if (approach_name == "autoencoder_nolle"):
+                    input_rep_filenames = "ohe_" + pd.Series(original_logs_filenames)
 
-        if (("create_input_representations" not in list_actions) | (
-                len(input_rep_filenames) < 1)):  # We assume, files are in hard disk
-            if (approach_name == "autoencoder_nolle"):
-                input_rep_filenames = "ohe_" + pd.Series(original_logs_filenames)
+                if ((approach_name == "tstideplus") | (approach_name == 'binet1') | (
+                        approach_name == 'detect_infrequents') | (
+                        approach_name == 'random')):
+                    input_rep_filenames = "tstideplus_" + pd.Series(original_logs_filenames).apply(
+                        lambda x: x.replace('.csv', '.pkl'))
 
-            if ((approach_name == "tstideplus") | (approach_name == 'binet1') | (
-                    approach_name == 'detect_infrequents') | (
-                    approach_name == 'random')):
-                input_rep_filenames = "tstideplus_" + pd.Series(original_logs_filenames).apply(
-                    lambda x: x.replace('.csv', '.pkl'))
-
-            if (approach_name == "aalst_approach"):
-                input_rep_filenames = "ohe_" + pd.Series(original_logs_filenames)
-            input_rep_filenames = input_rep_filenames.tolist()
+                if (approach_name == "aalst_approach"):
+                    input_rep_filenames = "ohe_" + pd.Series(original_logs_filenames)
+                input_rep_filenames = input_rep_filenames.tolist()
 
         # 2. Train and test in batch
         if ("train_test_and_evaluate" in list_actions):
@@ -398,13 +395,14 @@ def execute_actions(phase_number, list_actions, bimp_log_filename, nome_grupo_ex
                                                                                       start_in_p_modelit_id)
 
         # 3. Evaluate anomaly detection
-        if ( "quantittv_analysis_by_approach_ap" in list_actions
-            or "quantittv_analysis_by_approach_pr_rec" in list_actions
-            or "qualittv_analysis_create_d_analysis_files" in list_actions):
+        if ("quantittv_analysis_by_approach_ap" in list_actions
+                or "quantittv_analysis_by_approach_pr_rec" in list_actions
+                or "qualittv_analysis_create_d_analysis_files" in list_actions):
 
             if experiments_group_path is None:
 
-                all_result = glob.glob(os.path.join(RESULTS_DIR, 'resultados_gexp_' + get_abreviation_of(approach_name) + "*"))
+                all_result = glob.glob(
+                    os.path.join(RESULTS_DIR, 'resultados_gexp_' + get_abreviation_of(approach_name) + "*"))
                 if len(all_result) > 0:
                     experiments_group_path_ = Path(all_result[0])
                     results_data_filename = os.path.basename(glob.glob(os.path.join(experiments_group_path_, "*_all_results_details.csv"))[0])
@@ -465,7 +463,6 @@ def execute_actions(phase_number, list_actions, bimp_log_filename, nome_grupo_ex
             print("full.csv was created")
             df_full = pd.DataFrame()
             for approach_name in approach_name_list:
-                # experiments_group_paths= glob.glob(os.path.join(RESULTS_DIR, 'resultados_gexp_' + "*"))
                 experiments_group_path = \
                 glob.glob(os.path.join(RESULTS_DIR, 'resultados_gexp_' + get_abreviation_of(approach_name) + "*"))[0]
                 experiments_group_path = Path(experiments_group_path)
@@ -482,19 +479,65 @@ def execute_actions(phase_number, list_actions, bimp_log_filename, nome_grupo_ex
                                       iplot=True,
                                       print_figure=False,
                                       figure_numbers=[14, 15, 16, 18])
-        #  figure_numbers = [18]) # for dissertation
 
+    # 4. Filter anomalies in logs and add predicted labels
+    if ("generate_filtered_logs_and_labeled" in list_actions) & (phase_number == 3):
+        for approach_name in approach_name_list:
+            from anomaly_detection.pos_processing.filter_logs import create_plan_and_execute
+            experiments_group_path = \
+            glob.glob(os.path.join(RESULTS_DIR, 'resultados_gexp_' + get_abreviation_of(approach_name) + "*"))[0]
+            results_path = Path(experiments_group_path)
+            dirname = os.path.basename(results_path)
+            exp_group_id = dirname.replace("resultados_", "")
+
+            print("\n" + str(results_path))
+
+            # Usual Settings
+            log_type = 'log_normal'  # other option: log_type='log_without_duplicates'
+            batch_nr_list = [1]
+            batch_definition_type = "one_unique_batch"
+            batch_definition_conditions = None
+            all_results_filename = exp_group_id + "_all_results_details.csv"
+
+            # Create and execute plan
+            create_plan_and_execute(batch_definition_conditions, batch_definition_type,  batch_nr_list,
+                                    exp_group_id, results_path, all_results_filename,log_type)
+
+    # 5. Generate process models and evaluate
+    if ("generate_pmodels_and_quality_measures" in list_actions) & (phase_number == 3):
+        for approach_name in approach_name_list:
+            from anomaly_detection.pos_processing.discovery_and_metrics import discover_and_calculate_metrics_batch
+            experiments_group_path = \
+            glob.glob(os.path.join(RESULTS_DIR, 'resultados_gexp_' + get_abreviation_of(approach_name) + "*"))[0]
+            results_path = Path(experiments_group_path)
+            dirname = os.path.basename(results_path)
+            exp_group_id = dirname.replace("resultados_", "")
+
+            print("===========================" + exp_group_id + "===========================")
+            batch_filename = exp_group_id + "_all_results_details_batch1"
+            batch_dir_name = 'logs_postproces_batch1'
+            discover_and_calculate_metrics_batch(exp_group_id, batch_dir_name, batch_filename)
+
+    time_tst_end = time.time()
+    time_tst = time_tst_end - time_tst_start
+    print("\n time for execute actions:" + str(time_tst) + "\n")
 
 def get_params_by_research_questions(phase_number):
-    """ Definition of parameters that will be executed used according to phase_number selected.
+    """
+    Function that defines default parameters values according to phase_number.
 
-    :param
-        phase_number: integer. Possible values:
+    Parameters
+    ----------
+    phase_number: integer. Possible values:
             1 (Look for the best parameterizations)
             2 (Analyze robustness of approaches,
             3 (Analyze approaches to process discovery improvement).
-    :return: list
+
+    Returns
+    -------
+        A list containing parameters values
     """
+
     if (phase_number == 1) | (phase_number == 2) | (phase_number == 3):
         bimp_log_filename = "log_bimp_ptall.csv"
 
@@ -510,8 +553,10 @@ def get_params_by_research_questions(phase_number):
         #   C. Tasks for creation of files for qualitative analysis: ["qualittv_analysis_create_d_analysis_files"]
         #   D. Opcional Task : ["quantittv_analysis_by_approach_pr_rec"]
         nome_grupo_experimentos = "relatorio1-question2"
+        # task_list = ["create_logs", "create_input_representations", "train_test_and_evaluate",
+        #              "quantittv_analysis_by_approach_ap"]
         task_list = ["create_input_representations", "train_test_and_evaluate",
-                     "quantittv_analysis_all_approaches_in_one"]
+                     "quantittv_analysis_by_approach_ap"]
 
     if (phase_number == 3):
         nome_grupo_experimentos = "relatorio1-question3"
@@ -520,18 +565,5 @@ def get_params_by_research_questions(phase_number):
     return [bimp_log_filename, nome_grupo_experimentos, task_list]
 
 
-def main(phase_number):
-    approach_name_list = ["tstideplus", "autoencoder_nolle", "binet1", "detect_infrequents", "aalst_approach"]
-    approach_name_list = ["tstideplus", "autoencoder_nolle", "binet1", "detect_infrequents"]
-    [bimp_log_filename, nome_grupo_experimentos, list_actions] = get_params_by_research_questions(phase_number)
-    nome_grupo_experimentos = "test_case"
-    import time
-    time_tst_start = time.time()
-    execute_actions(phase_number, list_actions, bimp_log_filename, nome_grupo_experimentos, approach_name_list,
-                    experiments_group_path=None, results_data_filename=None, enum_p_modelit_id_from=1,
-                    start_in_p_modelit_id=0)
-    time_tst_end = time.time()
-    time_tst = time_tst_end - time_tst_start
-    print("\n time for execute actions:" + str(time_tst) + "\n")
 
-main(phase_number=2)
+

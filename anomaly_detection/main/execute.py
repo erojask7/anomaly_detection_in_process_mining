@@ -4,8 +4,6 @@ import pandas as pd
 import numpy as np
 import os
 from sklearn.model_selection import train_test_split, StratifiedKFold
-import sys
-sys.path.insert(1, "E:\\EXPERIMENTOS2020\\anomaly_detection_artigo\\")
 from anomaly_detection.general.global_variables import *
 from anomaly_detection.general.class_dataset import Dataset
 from anomaly_detection.approaches.class_stide import TStidePlus

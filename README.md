@@ -58,15 +58,15 @@ In order to execute phase 03 in main.py we can set as follow:
 main.py was set using nome_grupo_experimentos = "test_case". In order to get the same 
 results as in dissertation, nome_grupo_experimentos = "relatorio1-question2" should be used.
 
-## Notebooks related to phase 02
+## Notebooks
 ### Notebook01: 
-It executes phase02 and save results in folder "anomaly_detection\research_questions\best_anomaly_detection_and_descovery\resultados"
+It executes **phase02** and save results in folder "anomaly_detection\research_questions\best_anomaly_detection_and_descovery\resultados"
  - Results of experiment group [id_group] will be saved in "\resultados\resultados_gexp_binetn_[id_group]\gexp_binetn_[id_group]_all_results_details.csv".  
  - A report in .csv will be saved in gexp_binetn_[id_group]_all_results_details.csv. That file include all information stored about experiments
  
 
 ### Notebook02: 
- It executes phase03 and save results in folder "\resultados_gexp_binetn_[id_group]\logs_postproces_batch1"
+ It executes **phase03** and save results in folder "\resultados_gexp_binetn_[id_group]\logs_postproces_batch1"
    - Filtered logs will be saved in  \logs_postproces_batch1\filtered_logs
    - Discovered models will be saved in \logs_postproces_batch1\petrinets
    - Report about quality of discovered models will be saved in \logs_postproces_batch1\gexp_binetn_[id_group]_all_results_details_dscvry_batch1.csv
